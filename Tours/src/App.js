@@ -5,7 +5,60 @@ import Tours from './Tours'
 // I SWITCHED TO PERMANENT DOMAIN
 const url = 'https://course-api.com/react-tours-project'
 function App() {
-  return <h2>Tours Project Setup</h2>
+
+const [loading, setLoading] = useState(true)
+const [tours, setTours] = useState([]);
+const [error, setError] = useState('')
+
+const removeTour = (id) =>{
+  const newTours = tours.filter((tour) => tour.id !== id)
+  setTours(newTours)
+  console.log(id)
+}
+
+const fetchTours = async () =>{
+   setLoading(true)
+   try {
+      const response = await fetch(url);
+      const tours = await response.json()
+      setLoading(false)
+      setTours(tours)
+      console.log(tours)
+   } catch (error) {
+      setLoading(false)
+      error = 'Data loading failed ! Please, Check your internet connection and try back.'
+      setError(error)
+   }
+}
+
+useEffect(() =>{
+  fetchTours()
+},[])
+
+  if(loading){
+    return ( 
+      <main>
+        <Loading/>
+      </main>
+    )
+  }
+
+if(tours.length === 0){
+  return <main>
+    <div className='title'>
+      <h2>No tours left</h2>
+      <button className='btn' onClick={() => fetchTours()}>Refresh</button>
+    </div>
+  </main>
+}
+
+  return ( 
+    <main>
+      <Tours tours={tours} removeTour={removeTour} />
+      {error && <h3>{ error }</h3>}
+    </main>
+  )
+
 }
 
 export default App
